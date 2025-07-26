@@ -22,6 +22,7 @@
     "ffmpeg": "^0.0.4",
     "ffmpeg-static": "^5.2.0",
     "mediaplex": "^1.0.0",
+    "npm": "^11.4.1",
     "play-dl": "^1.9.7",
     "youtube-sr": "^4.3.10",
     "youtubei.js": "^13.1.0",
