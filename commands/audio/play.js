@@ -1,6 +1,37 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { useMainPlayer } = require('discord-player');
 const { EmbedBuilder } = require('discord.js');
+const player = useMainPlayer();
+const wait = require('util').promisify(setTimeout);
+
+
+/*async function suggest(interaction) {
+    const query = interaction.options.getString('input', false)?.trim();
+    if (!query) return;
+
+    //const player = useMainPlayer();
+
+    const searchResult = await player.search(query).catch(() => null);
+    if (!searchResult) {
+        return interaction.respond([{ name: 'No results found', value: '' }]);
+    }
+    const tracks = searchResult.hasPlaylist()
+        ? searchResult.playlist.tracks.slice(0, 24)
+        : searchResult.tracks.slice(0, 10);
+
+    const formattedResult = tracks.map((track) => {
+        const maxLength = 100 - (track.author.length + 2); 
+        const truncatedTitle = track.title.length > maxLength ? track.title.slice(0, maxLength - 3) + '...' : track.title;
+
+        return {
+            name: track.title.slice(0, 100),
+            value: track.url,
+        };
+    });
+
+    await interaction.respond(formattedResult);
+}
+*/
 
 module.exports = {
     category: 'audio',
@@ -11,13 +42,11 @@ module.exports = {
             option
                 .setName('input')
                 .setDescription('Put YouTube video URL, video title, YouTube playlist here')
-                .setRequired(true)),
+                .setRequired(true)
+                .setAutocomplete(false)),
                 
     async execute(interaction) {
         await interaction.deferReply();
-        
-        // Use the same player method as voiceupdate.js
-        const player = useMainPlayer();
         const channel = interaction.member.voice.channel;
         const query = interaction.options.getString('input', true);
 
@@ -26,48 +55,32 @@ module.exports = {
         }
 
         try {
-            // Play exactly like voiceupdate.js does
             const { track } = await player.play(channel, query, {
                 nodeOptions: {
-                    metadata: interaction,
                     leaveOnEmpty: false,
                     leaveOnEnd: false,
                     leaveOnStop: false,
                 }
             });
-            
             if (!track) {
-                console.log(`Failed to play: ${query}`);
-                return interaction.followUp('❌ Failed to play the requested track.');
-            }
+                    console.log(`Failed to play video for user ${newState.member.id}`);
+                    return;
+                }
 
-            // Create embed only if track successfully starts
             const trackEmbed = new EmbedBuilder()
                 .setColor(0x707a7e)
-                .setTitle(track.title || 'Unknown Title')
-                .setURL(track.url || '')
-                .setThumbnail(track.thumbnail || '')
-                .setAuthor({ 
-                    name: `${interaction.user.globalName || interaction.user.username} played:`, 
-                    iconURL: interaction.user.displayAvatarURL({ dynamic: true, format: 'png', size: 4096 })
-                })
+                .setTitle(`${track.title}`)
+                .setURL(`${track.url}`)
+                .setThumbnail(`${track.thumbnail}`)
+                .setAuthor({ name: `${interaction.user.globalName} played: `, iconURL: `${interaction.user.displayAvatarURL({ dynamic: true, format: 'png', size: 4096 })}` })
                 .setTimestamp();
 
-            const message = await interaction.followUp({ embeds: [trackEmbed] });
-            
-            // Delete message after 60 seconds
-            setTimeout(async () => {
-                try {
-                    await message.delete();
-                } catch (error) {
-                    // Message might already be deleted
-                    console.log('Could not delete play message:', error.message);
-                }
-            }, 60000);
+            await interaction.followUp({ embeds: [trackEmbed] });
+            await wait(60000);
+            await interaction.deleteReply();
 
         } catch (error) {
-            console.log(`Error in play command - ${error}`);
-            return interaction.followUp(`❌ Something went wrong: ${error.message || 'Unknown error'}`);
+            return interaction.followUp(`Something went wrong: ${error}`);
         }
     }
 };
