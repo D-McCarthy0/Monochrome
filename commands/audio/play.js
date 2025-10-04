@@ -5,11 +5,11 @@ const player = useMainPlayer();
 const wait = require('util').promisify(setTimeout);
 
 
-async function suggest(interaction) {
+/*async function suggest(interaction) {
     const query = interaction.options.getString('input', false)?.trim();
     if (!query) return;
 
-    const player = useMainPlayer();
+    //const player = useMainPlayer();
 
     const searchResult = await player.search(query).catch(() => null);
     if (!searchResult) {
@@ -31,7 +31,7 @@ async function suggest(interaction) {
 
     await interaction.respond(formattedResult);
 }
-
+*/
 
 module.exports = {
     category: 'audio',
@@ -43,7 +43,7 @@ module.exports = {
                 .setName('input')
                 .setDescription('Put YouTube video URL, video title, YouTube playlist here')
                 .setRequired(true)
-                .setAutocomplete(true)),
+                .setAutocomplete(false)),
     async autocomplete(interaction) {
         await suggest(interaction);
     },
