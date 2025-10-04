@@ -1,15 +1,14 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { useMainPlayer } = require('discord-player');
 const { EmbedBuilder } = require('discord.js');
-const player = useMainPlayer();
 const wait = require('util').promisify(setTimeout);
 
 
-/*async function suggest(interaction) {
+async function suggest(interaction) {
     const query = interaction.options.getString('input', false)?.trim();
     if (!query) return;
 
-    //const player = useMainPlayer();
+    const player = useMainPlayer();
 
     const searchResult = await player.search(query).catch(() => null);
     if (!searchResult) {
@@ -31,7 +30,7 @@ const wait = require('util').promisify(setTimeout);
 
     await interaction.respond(formattedResult);
 }
-*/
+
 
 module.exports = {
     category: 'audio',
@@ -43,10 +42,13 @@ module.exports = {
                 .setName('input')
                 .setDescription('Put YouTube video URL, video title, YouTube playlist here')
                 .setRequired(true)
-                .setAutocomplete(false)),
-                
+                .setAutocomplete(true)),
+    async autocomplete(interaction) {
+        await suggest(interaction);
+    },
     async execute(interaction) {
         await interaction.deferReply();
+        const player = useMainPlayer();
         const channel = interaction.member.voice.channel;
         const query = interaction.options.getString('input', true);
 
@@ -62,10 +64,6 @@ module.exports = {
                     leaveOnStop: false,
                 }
             });
-            if (!track) {
-                    console.log(`Failed to play video for user ${newState.member.id}`);
-                    return;
-                }
 
             const trackEmbed = new EmbedBuilder()
                 .setColor(0x707a7e)
