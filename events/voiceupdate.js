@@ -13,16 +13,7 @@ module.exports = {
             const isInVoiceChannel = newState.channelId;
             const primary = '389618932715094020';
             const test = '1220654441888350259';
-            /*
-            if (isInVoiceChannel !== primary && isInVoiceChannel !== test) {
-                return;
-            }
-            
 
-            if (newState.streaming || (oldState && oldState.streaming)) {
-                return;
-            }
-            */
             if (!wasInVoiceChannel && isInVoiceChannel) {
                 if (fs.existsSync(urlPath)) {
                     const urlsFromFile = JSON.parse(fs.readFileSync(urlPath, 'utf8'));
