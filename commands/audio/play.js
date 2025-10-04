@@ -44,9 +44,7 @@ module.exports = {
                 .setDescription('Put YouTube video URL, video title, YouTube playlist here')
                 .setRequired(true)
                 .setAutocomplete(false)),
-    async autocomplete(interaction) {
-        await suggest(interaction);
-    },
+                
     async execute(interaction) {
         await interaction.deferReply();
         const channel = interaction.member.voice.channel;
